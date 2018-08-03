@@ -1,0 +1,112 @@
+debug = true
+
+# logLevel = "ERROR"
+defaultEntryPoints = ["https","http"]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+  [entryPoints.https.tls]
+    [[entryPoints.https.tls.certificates]]
+      certFile = """-----BEGIN CERTIFICATE-----
+MIIDojCCAooCCQCZWkWyeELqoDANBgkqhkiG9w0BAQUFADCBkjELMAkGA1UEBhMC
+QlIxCzAJBgNVBAgMAlNQMRUwEwYDVQQHDAxTw4PCo28gUGF1bG8xEzARBgNVBAoM
+ClJlZGUgTGl2cmUxCzAJBgNVBAsMAlJMMRQwEgYDVQQDDAsqLnJlZGVsaXZyZTEn
+MCUGCSqGSIb3DQEJARYYY29udGF0b0ByZWRlbGl2cmUub3JnLmJyMB4XDTE4MDgw
+MzE0MTgyOFoXDTI4MDczMTE0MTgyOFowgZIxCzAJBgNVBAYTAkJSMQswCQYDVQQI
+DAJTUDEVMBMGA1UEBwwMU8ODwqNvIFBhdWxvMRMwEQYDVQQKDApSZWRlIExpdnJl
+MQswCQYDVQQLDAJSTDEUMBIGA1UEAwwLKi5yZWRlbGl2cmUxJzAlBgkqhkiG9w0B
+CQEWGGNvbnRhdG9AcmVkZWxpdnJlLm9yZy5icjCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBANVYMJK7+uqKHXAS5aM7Jd+BvQwoqj2EUwdKrNZ4WyNs5FIz
+xopftwmbl3O0XjIS1rphUUDSdgiZeBp0vgqRf5+ofHG4irqZZIbgE2+elInDUAvW
+1vkUVZqa95KDVGu9k/MyYlha0dA1+PJUE8DHXqnL7pqRMldZBcE55i88y1xbxbJk
+HQroItZz1GEfP0wUzBBCAx/IyAj/Mmf7k72d7WTlGvGpKxP7wrlLDeSw69vpKrY8
+VuymX1pghx2/kYdHYeOAAeuS+t1Fozoi0U8t8d257gQTG+ZDaS4YBcWUovNsVpvv
+a0LgSc8KNLf8gKU61fnHvLtueLyEb4narBDONZ0CAwEAATANBgkqhkiG9w0BAQUF
+AAOCAQEA1JFlHuyLdx3OAnUVU9hQ2793c2y4UOdCXYWR3UbYwO1fAbmes13qKUwc
+UN7b2g2VrS0CwyblhVbajcgxsz2myFO3kaHDjmx5zDFtQRhLz2kr4EmLkR45e3pR
+Yes2FMfMIpNquLa1iCsydLOAbtcBC30kNo19YMeuY/3Ugm7oZxjWZdl2lC+YRqbM
+oZu1eQW/t7lFMA4ZD8IKctUi01MQXZ94k5hik/MRxxdxdoUaJHLCEwKSDDR6pLzf
+nqt2zBsg1s7411cGTKUEKVSsV17hy7zMCARtnmHJihy5NODQCPPyw7kL6S75w3Rp
+DbDvyJ9jzuR/oWBqC5JbQC/4B8rWfQ==
+-----END CERTIFICATE-----
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEA1Vgwkrv66oodcBLlozsl34G9DCiqPYRTB0qs1nhbI2zkUjPG
+il+3CZuXc7ReMhLWumFRQNJ2CJl4GnS+CpF/n6h8cbiKuplkhuATb56UicNQC9bW
++RRVmpr3koNUa72T8zJiWFrR0DX48lQTwMdeqcvumpEyV1kFwTnmLzzLXFvFsmQd
+Cugi1nPUYR8/TBTMEEIDH8jICP8yZ/uTvZ3tZOUa8akrE/vCuUsN5LDr2+kqtjxW
+7KZfWmCHHb+Rh0dh44AB65L63UWjOiLRTy3x3bnuBBMb5kNpLhgFxZSi82xWm+9r
+QuBJzwo0t/yApTrV+ce8u254vIRvidqsEM41nQIDAQABAoIBAEm6CE8tFzEmObYZ
+UbJvJk9vDl29T9eieu7yJ3iWbyh24RBnRB1dpmtzkYsysbqsN/iA2QuFr7SZFKBP
+57zPO0N5fkfudkK177+MgCr6qmpRTMBKpk+9bzfWhefj6rCw+wf4SXQvLoK9pCJa
+W9krDNOw3ewccUEuSobT83Avmjd3/fRTlTE3TxyBfYKxmw9xRrgfvTSxNfEP/1RC
+afDHYuqi0RJaKJzpxflkcR3Fq5ZYSDEGY+lwxoCG2vb3f91XCmYmmB/EAkmVBuzn
+10Ub5gEYV49lewDdgRBBKYQYnoGhXJ2biCRXNpZ2sCUclnYYrGprewB4BdvETXqn
+pb/z7CECgYEA7hms/EsFoCORdle8UggcNmUHDxHp968sd0ygGY/LXrKtCehQzx2x
+zV5uNuyyTtCJhIUmmQ2J0W+oBp2G59IcOrytD2pWPxTPznqJzFcQTciFUGrUlsvY
+sg93MaBH7qvBmQjT7ecSkZ+6aRfkw8HMsjzEmhUZYhY2WoKPUtJLCSMCgYEA5WIU
+bo2ljwtQwaPv1o5vJ9/JOdBlys8hfR2wUYp+3srAHi4z+VD16zD3qxYe4XPdLdFt
+wx5EbvnaGfsVlx2Iv424HB63DwDlDRAXkhIIWvYG2hj2D3nP4bx9RU0nazBtuMsr
+s53SqO3IWdMhdq+3LTK/+hf3Jz7U5TRE7Hbrkj8CgYB20cdazBGNndJcjWIESdnS
+Z05DffwVR4zYKBwJRZIGuwHRXObexQHS69nyfOJqpHTL9iqR3Ii3RJJEYt5M17SQ
+t1FhzP4nUrp1Xv9fQt93AadNv1JBwo5sJX2k/UiIWZwuQ5KHOXYxx9Ud1vepnRAK
+rnqqLfdR1KXhOyBNA3bAowKBgD6ocghY7PaMEr0yeNtVAQwVVzRRttyVhAJXT8iW
+Wl2laKFV4aCi+uoJ8D1tx3WyXqKbaK454FuoKGmcaqNiz+3zWm1j/oE8r1TIJogi
+IOIn/mspEl3b2mtBP77kenYPPomSBhgEbnzypx3STHvNN+5CxKoeTccMpL8Pbhxh
+x6ulAoGBAKEVSZg1VY+pPA5P8gwdSslr/VARu/m1vc4vjnszUGZufaEZ7/CfI3ky
+pByPqDKkibTD9Tvnsbh6o7GlpTZasHnibLtB00sjSCt/OjKrhwl/Krb/Z0pRWHPw
+s0mCenhyg34fHcevd2i8OyUY9dlunPc1763wjPIiRk6nGq+M9wSV
+-----END RSA PRIVATE KEY-----"""
+      keyFile = """-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEA1Vgwkrv66oodcBLlozsl34G9DCiqPYRTB0qs1nhbI2zkUjPG
+il+3CZuXc7ReMhLWumFRQNJ2CJl4GnS+CpF/n6h8cbiKuplkhuATb56UicNQC9bW
++RRVmpr3koNUa72T8zJiWFrR0DX48lQTwMdeqcvumpEyV1kFwTnmLzzLXFvFsmQd
+Cugi1nPUYR8/TBTMEEIDH8jICP8yZ/uTvZ3tZOUa8akrE/vCuUsN5LDr2+kqtjxW
+7KZfWmCHHb+Rh0dh44AB65L63UWjOiLRTy3x3bnuBBMb5kNpLhgFxZSi82xWm+9r
+QuBJzwo0t/yApTrV+ce8u254vIRvidqsEM41nQIDAQABAoIBAEm6CE8tFzEmObYZ
+UbJvJk9vDl29T9eieu7yJ3iWbyh24RBnRB1dpmtzkYsysbqsN/iA2QuFr7SZFKBP
+57zPO0N5fkfudkK177+MgCr6qmpRTMBKpk+9bzfWhefj6rCw+wf4SXQvLoK9pCJa
+W9krDNOw3ewccUEuSobT83Avmjd3/fRTlTE3TxyBfYKxmw9xRrgfvTSxNfEP/1RC
+afDHYuqi0RJaKJzpxflkcR3Fq5ZYSDEGY+lwxoCG2vb3f91XCmYmmB/EAkmVBuzn
+10Ub5gEYV49lewDdgRBBKYQYnoGhXJ2biCRXNpZ2sCUclnYYrGprewB4BdvETXqn
+pb/z7CECgYEA7hms/EsFoCORdle8UggcNmUHDxHp968sd0ygGY/LXrKtCehQzx2x
+zV5uNuyyTtCJhIUmmQ2J0W+oBp2G59IcOrytD2pWPxTPznqJzFcQTciFUGrUlsvY
+sg93MaBH7qvBmQjT7ecSkZ+6aRfkw8HMsjzEmhUZYhY2WoKPUtJLCSMCgYEA5WIU
+bo2ljwtQwaPv1o5vJ9/JOdBlys8hfR2wUYp+3srAHi4z+VD16zD3qxYe4XPdLdFt
+wx5EbvnaGfsVlx2Iv424HB63DwDlDRAXkhIIWvYG2hj2D3nP4bx9RU0nazBtuMsr
+s53SqO3IWdMhdq+3LTK/+hf3Jz7U5TRE7Hbrkj8CgYB20cdazBGNndJcjWIESdnS
+Z05DffwVR4zYKBwJRZIGuwHRXObexQHS69nyfOJqpHTL9iqR3Ii3RJJEYt5M17SQ
+t1FhzP4nUrp1Xv9fQt93AadNv1JBwo5sJX2k/UiIWZwuQ5KHOXYxx9Ud1vepnRAK
+rnqqLfdR1KXhOyBNA3bAowKBgD6ocghY7PaMEr0yeNtVAQwVVzRRttyVhAJXT8iW
+Wl2laKFV4aCi+uoJ8D1tx3WyXqKbaK454FuoKGmcaqNiz+3zWm1j/oE8r1TIJogi
+IOIn/mspEl3b2mtBP77kenYPPomSBhgEbnzypx3STHvNN+5CxKoeTccMpL8Pbhxh
+x6ulAoGBAKEVSZg1VY+pPA5P8gwdSslr/VARu/m1vc4vjnszUGZufaEZ7/CfI3ky
+pByPqDKkibTD9Tvnsbh6o7GlpTZasHnibLtB00sjSCt/OjKrhwl/Krb/Z0pRWHPw
+s0mCenhyg34fHcevd2i8OyUY9dlunPc1763wjPIiRk6nGq+M9wSV
+-----END RSA PRIVATE KEY-----"""
+
+[retry]
+[api]
+[ping]
+[stats]
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "redelivre"
+watch = true
+exposedByDefault = false
+
+# [acme]
+# email = "mail@mail.com"
+# storage = "acme.json"
+# entryPoint = "https"
+# onHostRule = true
+# [acme.httpChallenge]
+# entryPoint = "http"
+
+# [accessLog]
+# filePath = "log/traefik.log"
