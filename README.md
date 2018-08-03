@@ -58,6 +58,10 @@ rl-install_web_wp_1       /bin/sh -c envsubst $VIRT ...    Up             0.0.0.
 
 Dessa forma vai conseguir visualizar em qual parte do build você teve problemas.
 
+## Novos serviços
+
+Caso queira adicionar um novo serviço na infraestrutura da rede livre, [crie um pull request](https://help.github.com/articles/creating-a-pull-request/).
+
 ## Comandos úteis
 
 ```bash
