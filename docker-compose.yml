@@ -1,0 +1,277 @@
+version: '2'
+
+services:
+    app_lc:
+        # image: redelivre/login-cidadao
+        build:
+            context: ../login-cidadao/
+            args:
+                TIMEZONE: "America/Sao_Paulo"
+        volumes:
+            - ../login-cidadao/:/var/www/html:cached
+            - ./logs/app_lc:/var/www/html/app/logs
+        links:
+            - postgres:db
+        depends_on:
+            - postgres
+            - redis
+            - memcached
+            - smtp
+
+    web_lc:
+        # image: redelivre/login-cidadao-nginx
+        build: lc/web
+        ports:
+            - 83:80
+            - 436:443
+        depends_on:
+            - app_lc
+        volumes_from:
+            - app_lc
+        volumes:
+            - ./logs/web_lc/:/var/log/nginx
+        labels:
+            traefik.frontend.rule: Host:lc.redelivre
+            traefik.port: 80
+            traefik.enable: true
+            traefik.alias: lc
+
+    app_mc:
+        # image: redelivre/mapasculturais
+        build:
+            context: ../mapasculturais/
+        volumes:
+            - ../mapasculturais/:/var/www/html/:cached
+            - ./logs/app_mc/:/var/www/html/src/protected/logs
+        links:
+            - postgres
+        environment:
+            POSTGRES_PASSWORD: senhaMapas
+            POSTGRES_USER: mapas
+            POSTGRES_DB: mapas
+        depends_on:
+            - postgres
+
+    web_mc:
+        # image: redelivre/mapasculturais-nginx
+        build: mc/web
+        ports:
+            - 82:80
+            - 435:443
+        depends_on:
+            - app_mc
+        volumes_from:
+            - app_mc
+        volumes:
+            - ./logs/web_mc/:/var/log/nginx
+        labels:
+            traefik.frontend.rule: Host:mc.redelivre
+            traefik.port: 80
+            traefik.enable: true
+            traefik.alias: mc
+
+    app_wp:
+        # image: redelivre/wordpress
+        build:
+            context: ../wordpress
+        depends_on:
+            - mariadb
+            - smtp
+        links:
+            - mariadb
+            - smtp
+        volumes:
+            - ../wordpress:/var/www/html/
+            - ./logs/app_wp/:/var/log/nginx
+            # - /etc/php7/php.ini
+        environment:
+            DB_NAME: wp
+            DB_USER: wp
+            DB_PASSWORD: password
+            DB_HOST: mariadb
+            DB_PREFIX: wp_
+            WP_ENV: development
+            WP_HOME: https://redelivre
+            WP_SITEURL: https://redelivre/wp
+
+    web_wp:
+        # image: redelivre/wordpress-nginx
+        build:
+            context: ./wp/web
+        ports:
+            - 81:80
+            - 434:443
+        depends_on:
+            - app_wp
+        links:
+            - app_wp
+        volumes:
+            - ./logs/web_wp:/var/log/nginx
+        volumes_from:
+            - app_wp
+        environment:
+            VIRTUAL_HOST: redelivre
+            VIRTUAL_PORT: 80
+        # substitute hostname to nginx conf; syntax from here: https://github.com/docker-library/docs/issues/496#issuecomment-203003827
+        command: /bin/sh -c "envsubst '$$VIRTUAL_HOST' < /etc/nginx/site.conf.template > /etc/nginx/site.conf && nginx -g 'daemon off;'"
+        labels:
+            traefik.frontend.rule: Host:redelivre
+            traefik.port: '80'
+            traefik.enable: 'true'
+
+    s3:
+        image: minio/minio
+        environment:
+            MINIO_ACCESS_KEY: admin
+            MINIO_SECRET_KEY: password
+        volumes:
+            - s3_data:/data
+        ports:
+            - 9000:9000/tcp
+        command:
+            - server
+            - /data
+        labels:
+            traefik.frontend.rule: Host:s3.redelivre
+            traefik.port: '9000'
+            traefik.enable: 'true'
+            traefik.alias: s3
+
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+        - 9090:8080
+        labels:
+            traefik.frontend.rule: Host:adminer.redelivre
+            traefik.port: '8080'
+            traefik.enable: 'true'
+            traefik.alias: adminer
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        depends_on:
+            - mariadb
+        links:
+            - mariadb
+        environment:
+            VIRTUAL_PORT: 80
+            VIRTUAL_HOST: phpmyadmin.redelivre
+            PMA_ABSOLUTE_URI: http://phpmyadmin.redelivre/
+            PMA_ARBITRARY: 1
+            PMA_HOST: mariadb
+            PMA_PORT: 3306
+            PMA_USER: wp
+            PMA_PASSWORD: password
+        labels:
+            traefik.frontend.rule: Host:phpmyadmin.redelivre
+            traefik.port: '80'
+            traefik.enable: 'true'
+            traefik.alias: s3
+
+    smtp:
+        image: mailhog/mailhog
+        environment:
+            MH_HOSTNAME: smtp.redelivre
+        ports:
+            - 1025:1025/tcp
+            - 8025:8025/tcp
+        labels:
+            traefik.frontend.rule: Host:smtp.redelivre
+            traefik.port: '8025'
+            traefik.enable: 'true'
+            traefik.alias: smtp
+
+    elk:
+        image: willdurand/elk
+        ports:
+            - 84:80
+        volumes:
+            - ./elk/logstash:/etc/logstash
+            - ./elk/logstash/patterns:/opt/logstash/patterns
+        volumes_from:
+            - app_lc
+            - web_lc
+        labels:
+            traefik.frontend.rule: Host:elk.redelivre
+            traefik.port: '80'
+            traefik.enable: 'true'
+            traefik.alias: elk
+
+    traefik:
+        # image: redelivre/loadbalancer
+        build:
+            context: lb
+        ports:
+            - 80:80/tcp
+            - 8080:8080/tcp
+            - 443:443/tcp
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - "./lb/traefik.toml:/etc/traefik/traefik.toml"
+        labels:
+            traefik.frontend.rule: Host:lb.redelivre
+            traefik.alias: traefik
+            traefik.port: '8080'
+            traefik.enable: 'true'
+
+    postgres:
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: senhaMapas
+            POSTGRES_USER: mapas
+            POSTGRES_DB: mapas
+            POSTGRES_DB_TEST: mapasculturais_test
+        build:
+            context: ../mapasculturais
+            dockerfile: docker/dev/Dockerfile-db
+        ports:
+            - 5432:5432
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+
+    redis:
+        image: redis:alpine
+        ports:
+            - 6379:6379
+
+    memcached:
+        image: memcached:alpine
+        ports:
+            - 11211:11211
+
+    mariadb:
+        image: mariadb
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: 11111
+            MYSQL_DATABASE: mariadb
+            MYSQL_USER: wp
+            MYSQL_PASSWORD: password
+        volumes:
+            - mysql_data:/var/lib/mysql
+
+    # composer:
+    #     image: composer
+    #     volumes:
+    #         - ./app:/app
+
+    # test:
+    #     build:
+    #         context: ./wp/web
+    #     depends_on:
+    #         - web_wp
+    #         - phpmyadmin
+    #         - smtp
+    #     links:
+    #         - web_wp:redelivre
+    #         - web_lc:lc.redelivre
+    #         - web_mc:mc.redelivre
+    #         - phpmyadmin:phpmyadmin.redelivre
+    #         - smtp:smtp.redelivre
+
+volumes:
+    postgres_data:
+    s3_data:
+    mysql_data:
