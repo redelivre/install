@@ -2,7 +2,10 @@
 
 ## Infraestrutura da #RedeLivre
 
-A primeira etapa é permitir aos desenvolvedores instalarem a Rede Livre em seu próprio computador. Para isso, algumas dependências obrigatórias são necessárias: o [Docker](https://rancher.com/docs/rancher/v1.6/en/hosts/#supported-docker-versions), o [Docker Compose](https://github.com/docker/compose/releases/tag/1.10.1) e o Make.
+Essa etapa tentar garantir aos desenvolvedores instalarem a Rede Livre em seu próprio computador. Para isso, algumas dependências obrigatórias são necessárias: o [Docker](https://rancher.com/docs/rancher/v1.6/en/hosts/#supported-docker-versions), o [Docker Compose](https://github.com/docker/compose/releases/tag/1.22.0) e o Make.
+
+A Rede Livre é, por enquanto, formada por 3 produtos principais: [Login Cidadão](https://github.com/redelivre/login-cidadao), [Mapas Culturais](https://github.com/hacklabr/mapasculturais) e [Wordpress](https://github.com/redelivre/2.0).
+
 
 Para instalar o docker, experimente executar o seguinte comando:
 
@@ -22,10 +25,13 @@ Em seguida, adicione ao seu host as seguintes linhas:
 E então, execute o comando:
 
 ```bash
+mkdir redelivre
+git clone https://github.com/redelivre/install
+cd install
 make redelivre
 ```
 
-Subirão alguns serviços depois de 45 minutos, dependendo da conexão com a internet e do processador do computador. As urls adicionadas ao host estarão funcionando correntamente, se tudo deu certo no build.
+Subirão alguns serviços depois de 120 minutos, dependendo da conexão com a internet e do processador do computador. As urls adicionadas ao host estarão funcionando correntamente, se tudo deu certo no build.
 
 Caso ocorra algum problema, execute o comando:
 

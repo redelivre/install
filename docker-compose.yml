@@ -1,14 +1,15 @@
 version: '2'
 
 services:
+    # https://github.com/redelivre/login-cidadao
     app_lc:
-        # image: redelivre/login-cidadao
-        build:
-            context: ../login-cidadao/
-            args:
-                TIMEZONE: "America/Sao_Paulo"
+        image: redelivre/login-cidadao
+        # build:
+        #     context: ../login-cidadao/
+        #     args:
+        #         TIMEZONE: "America/Sao_Paulo"
         volumes:
-            - ../login-cidadao/:/var/www/html:cached
+            # - ../login-cidadao/:/var/www/html:cached
             - ./logs/app_lc:/var/www/html/app/logs
         links:
             - postgres:db
@@ -19,14 +20,12 @@ services:
             - smtp
 
     web_lc:
-        # image: redelivre/login-cidadao-nginx
-        build: lc/web
+        image: redelivre/login-cidadao-nginx
+        # build: lc/web
         ports:
             - 83:80
             - 436:443
         depends_on:
-            - app_lc
-        volumes_from:
             - app_lc
         volumes:
             - ./logs/web_lc/:/var/log/nginx
@@ -36,12 +35,12 @@ services:
             traefik.enable: true
             traefik.alias: lc
 
+    # https://github.com/hacklabr/mapasculturais
     app_mc:
-        # image: redelivre/mapasculturais
-        build:
-            context: ../mapasculturais/
+        image: redelivre/mapasculturais
+        # build: ../mapasculturais/
         volumes:
-            - ../mapasculturais/:/var/www/html/:cached
+            # - ../mapasculturais/:/var/www/html/:cached
             - ./logs/app_mc/:/var/www/html/src/protected/logs
         links:
             - postgres
@@ -53,14 +52,12 @@ services:
             - postgres
 
     web_mc:
-        # image: redelivre/mapasculturais-nginx
+        image: redelivre/mapasculturais-nginx
         build: mc/web
         ports:
             - 82:80
             - 435:443
         depends_on:
-            - app_mc
-        volumes_from:
             - app_mc
         volumes:
             - ./logs/web_mc/:/var/log/nginx
@@ -70,10 +67,10 @@ services:
             traefik.enable: true
             traefik.alias: mc
 
+    # https://github.com/redelivre/2.0
     app_wp:
-        # image: redelivre/wordpress
-        build:
-            context: ../wordpress
+        image: redelivre/wordpress
+        # build: ../wordpress
         depends_on:
             - mariadb
             - smtp
@@ -81,7 +78,7 @@ services:
             - mariadb
             - smtp
         volumes:
-            - ../wordpress:/var/www/html/
+            # - ../wordpress:/var/www/html/
             - ./logs/app_wp/:/var/log/nginx
             # - /etc/php7/php.ini
         environment:
@@ -95,9 +92,8 @@ services:
             WP_SITEURL: https://redelivre/wp
 
     web_wp:
-        # image: redelivre/wordpress-nginx
-        build:
-            context: ./wp/web
+        image: redelivre/wordpress-nginx
+        # build: wp/web
         ports:
             - 81:80
             - 434:443
@@ -199,7 +195,7 @@ services:
             traefik.alias: elk
 
     traefik:
-        # image: redelivre/loadbalancer
+        image: redelivre/loadbalancer
         build:
             context: lb
         ports:
@@ -258,8 +254,8 @@ services:
     #         - ./app:/app
 
     # test:
-    #     build:
-    #         context: ./wp/web
+    #    build:
+    #        context: ./wp/web
     #     depends_on:
     #         - web_wp
     #         - phpmyadmin
@@ -270,6 +266,11 @@ services:
     #         - web_mc:mc.redelivre
     #         - phpmyadmin:phpmyadmin.redelivre
     #         - smtp:smtp.redelivre
+
+    # php:
+    #     image: redelivre/php
+    #     build:
+    #         context: php
 
 volumes:
     postgres_data:
