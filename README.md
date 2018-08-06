@@ -1,5 +1,8 @@
 # Rede Livre Install
 
+Installe a redelivre en su computador hoje ! we ♥ DX
+[![Join the chat at https://telegram.me/IdentidadeDigital](https://patrolavia.github.io/telegram-badge/chat.png)](https://t.me/RedeLivreOrg)
+
 ## Infraestrutura da #RedeLivre
 
 Essa etapa tentar garantir aos desenvolvedores instalarem a Rede Livre em seu próprio computador. Para isso, algumas dependências obrigatórias são necessárias: o [Docker](https://rancher.com/docs/rancher/v1.6/en/hosts/#supported-docker-versions), o [Docker Compose](https://github.com/docker/compose/releases/tag/1.22.0) e o Make.
