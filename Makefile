@@ -4,8 +4,10 @@
 # https://github.com/maxpou/docker-symfony
 # https://github.com/schliflo/bedrock-docker
 
-redelivre: up app_lc_migrations app_mc_migrations app_wp_migrations
+redelivre: prepare up app_lc_migrations app_mc_migrations app_wp_migrations
 	make urls
+prepare:
+	mkdir -p ../mapasculturais
 
 app_lc_migrations:
 	# docker-compose exec app_lc php app/console doctrine:database:create -q
