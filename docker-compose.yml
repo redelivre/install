@@ -1,27 +1,35 @@
 version: '2'
+networks:
+  rl:
+    ipam:
+      driver: default
+      config:
+      - subnet:  10.0.0.0/8
 
 services:
     # https://github.com/redelivre/login-cidadao
     app_lc:
         image: redelivre/login-cidadao
-        # build:
-        #     context: ../login-cidadao/
-        #     args:
-        #         TIMEZONE: "America/Sao_Paulo"
+        build:
+            context: ../login-cidadao/
+            args:
+                TIMEZONE: "America/Sao_Paulo"
         volumes:
-            # - ../login-cidadao/:/var/www/html:cached
+            # - ../login-cidadao/:/var/www/html
             - ./logs/app_lc:/var/www/html/app/logs
         links:
-            - postgres:db
+            - mariadb:db
         depends_on:
-            - postgres
+            - mariadb
             - redis
             - memcached
             - smtp
+        networks:
+            rl:
 
     web_lc:
         image: redelivre/login-cidadao-nginx
-        # build: lc/web
+        build: lc/web
         ports:
             - 83:80
             - 436:443
@@ -31,25 +39,37 @@ services:
             - ./logs/web_lc/:/var/log/nginx
         labels:
             traefik.frontend.rule: Host:lc.redelivre
-            traefik.port: 80
-            traefik.enable: true
+            traefik.port: '80'
+            traefik.enable: 'true'
             traefik.alias: lc
+        networks:
+            rl:
 
     # https://github.com/hacklabr/mapasculturais
     app_mc:
         image: redelivre/mapasculturais
-        # build: ../mapasculturais/
+        build:
+            context: ../mapasculturais/
+            args:
+                TIMEZONE: "America/Sao_Paulo"
         volumes:
-            # - ../mapasculturais/:/var/www/html/:cached
+            # - ../mapasculturais/:/var/www/html/
             - ./logs/app_mc/:/var/www/html/src/protected/logs
+        environment:
+            MAILER_SERVER: smtp
+            MAILER_PORT: 8045
+            SLIM_DEBUG: 'true'
+            MAPASCULTURAIS_CONFIG_FILE: config.php
+            DB_PASS: senhaMapas
+            DB_USER: mapas
+            DB_NAME: mapas
+            DB_HOST: postgres
         links:
             - postgres
-        environment:
-            POSTGRES_PASSWORD: senhaMapas
-            POSTGRES_USER: mapas
-            POSTGRES_DB: mapas
         depends_on:
             - postgres
+        networks:
+            rl:
 
     web_mc:
         image: redelivre/mapasculturais-nginx
@@ -63,37 +83,43 @@ services:
             - ./logs/web_mc/:/var/log/nginx
         labels:
             traefik.frontend.rule: Host:mc.redelivre
-            traefik.port: 80
-            traefik.enable: true
+            traefik.port: '80'
+            traefik.enable: 'true'
             traefik.alias: mc
+        networks:
+            rl:
 
     # https://github.com/redelivre/2.0
     app_wp:
         image: redelivre/wordpress
-        # build: ../wordpress
+        build: ../wordpress
         depends_on:
             - mariadb
             - smtp
+            - s3
         links:
             - mariadb
             - smtp
+            - s3
         volumes:
-            # - ../wordpress:/var/www/html/
+            - ../wordpress:/var/www/html/
             - ./logs/app_wp/:/var/log/nginx
             # - /etc/php7/php.ini
         environment:
             DB_NAME: wp
-            DB_USER: wp
-            DB_PASSWORD: password
+            DB_USER: root
+            DB_PASSWORD: 11111
             DB_HOST: mariadb
             DB_PREFIX: wp_
             WP_ENV: development
             WP_HOME: https://redelivre
             WP_SITEURL: https://redelivre/wp
+        networks:
+            rl:
 
     web_wp:
         image: redelivre/wordpress-nginx
-        # build: wp/web
+        build: wp/web
         ports:
             - 81:80
             - 434:443
@@ -114,6 +140,8 @@ services:
             traefik.frontend.rule: Host:redelivre
             traefik.port: '80'
             traefik.enable: 'true'
+        networks:
+            rl:
 
     s3:
         image: minio/minio
@@ -132,6 +160,8 @@ services:
             traefik.port: '9000'
             traefik.enable: 'true'
             traefik.alias: s3
+        networks:
+            rl:
 
     adminer:
         image: adminer
@@ -143,6 +173,8 @@ services:
             traefik.port: '8080'
             traefik.enable: 'true'
             traefik.alias: adminer
+        networks:
+            rl:
 
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
@@ -164,6 +196,8 @@ services:
             traefik.port: '80'
             traefik.enable: 'true'
             traefik.alias: s3
+        networks:
+            rl:
 
     smtp:
         image: mailhog/mailhog
@@ -177,6 +211,8 @@ services:
             traefik.port: '8025'
             traefik.enable: 'true'
             traefik.alias: smtp
+        networks:
+            rl:
 
     elk:
         image: willdurand/elk
@@ -193,6 +229,8 @@ services:
             traefik.port: '80'
             traefik.enable: 'true'
             traefik.alias: elk
+        networks:
+            rl:
 
     traefik:
         image: redelivre/loadbalancer
@@ -210,6 +248,9 @@ services:
             traefik.alias: traefik
             traefik.port: '8080'
             traefik.enable: 'true'
+        networks:
+            rl:
+              ipv4_address: 10.0.0.100
 
     postgres:
         restart: always
@@ -225,16 +266,22 @@ services:
             - 5432:5432
         volumes:
             - postgres_data:/var/lib/postgresql/data
+        networks:
+            rl:
 
     redis:
         image: redis:alpine
         ports:
             - 6379:6379
+        networks:
+            rl:
 
     memcached:
         image: memcached:alpine
         ports:
             - 11211:11211
+        networks:
+            rl:
 
     mariadb:
         image: mariadb
@@ -247,6 +294,8 @@ services:
             MYSQL_PASSWORD: password
         volumes:
             - mysql_data:/var/lib/mysql
+        networks:
+            rl:
 
     # composer:
     #     image: composer

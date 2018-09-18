@@ -1,14 +1,14 @@
 FROM php:7.2-fpm
 ARG TIMEZONE
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl libcurl4-gnutls-dev locales imagemagick libmagickcore-dev libmagickwand-dev zip \
-        ruby ruby-dev libpq-dev gnupg nano iputils-ping git \
-        unzip zlibc zlib1g-dev libxml2-dev libicu-dev \
-        libz-dev openssl
-
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - \
-    && apt-get install -y nodejs
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+    && apt-get update && apt-get install -y --no-install-recommends \
+        curl libcurl4-gnutls-dev locales imagemagick libmagickcore-dev \
+        libmagickwand-dev zip ruby ruby-dev libpq-dev gnupg nano \
+        iputils-ping git unzip zlibc zlib1g-dev libxml2-dev libicu-dev \
+        libz-dev openssl nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN npm install -g \
         uglify-js@2.2.0 \
@@ -39,12 +39,9 @@ RUN echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-x
     && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "date.timezone = America/Sao_Paulo" >> /usr/local/etc/php/conf.d/php-timezone.ini \
     && echo 'alias sf="php app/console"' >> ~/.bashrc \
-    && echo 'alias sf3="php bin/console"' >> ~/.bashrc
-
-# Set timezone
-RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && echo ${TIMEZONE} > /etc/timezone \
-&& printf '[PHP]\ndate.timezone = "%s"\n', ${TIMEZONE} > /usr/local/etc/php/conf.d/tzone.ini
+    && echo 'alias sf3="php bin/console"' >> ~/.bashrc \
+    && ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
+    && echo ${TIMEZONE} > /etc/timezone \
+    && printf '[PHP]\ndate.timezone = "%s"\n', ${TIMEZONE} > /usr/local/etc/php/conf.d/tzone.ini
 
 WORKDIR /var/www/html
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
