@@ -28,8 +28,11 @@ Em seguida, adicione ao seu host as seguintes linhas:
 E então, execute o comando:
 
 ```bash
-mkdir redelivre
+mkdir redelivre && cd redelivre
 git clone https://github.com/redelivre/install
+git clone --single-branch -b feature/docker-simplified https://github.com/redelivre/login-cidadao
+git clone --single-branch -b feature/dockerfile-simplified https://github.com/redelivre/mapasculturais
+git clone https://github.com/redelivre/2.0 wordpress
 cd install
 make redelivre
 ```

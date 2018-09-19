@@ -4,7 +4,7 @@
 # https://github.com/maxpou/docker-symfony
 # https://github.com/schliflo/bedrock-docker
 
-redelivre: start app_lc_build_frontend app_lc_migrations app_wp_migrations app_mc_migrations
+redelivre: start app_lc_migrations app_wp_migrations app_mc_migrations
 	make urls
 
 app_lc_build_frontend:
