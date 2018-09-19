@@ -189,8 +189,8 @@ services:
             PMA_ARBITRARY: 1
             PMA_HOST: mariadb
             PMA_PORT: 3306
-            PMA_USER: wp
-            PMA_PASSWORD: password
+            PMA_USER: root 
+            PMA_PASSWORD: 11111 
         labels:
             traefik.frontend.rule: Host:phpmyadmin.redelivre
             traefik.port: '80'
@@ -289,7 +289,7 @@ services:
             - "3306:3306"
         environment:
             MYSQL_ROOT_PASSWORD: 11111
-            MYSQL_DATABASE: mariadb
+            MYSQL_DATABASE: wp 
             MYSQL_USER: wp
             MYSQL_PASSWORD: password
         volumes:

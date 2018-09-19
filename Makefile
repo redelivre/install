@@ -4,37 +4,33 @@
 # https://github.com/maxpou/docker-symfony
 # https://github.com/schliflo/bedrock-docker
 
-redelivre: start app_lc_migrations app_wp_migrations app_mc_migrations
+redelivre: start app_lc_build_frontend app_lc_migrations app_wp_migrations app_mc_migrations
 	make urls
 
-app_lc_migrations:
+app_lc_build_frontend:
 	docker-compose exec app_lc php app/console assets:install
 	docker-compose exec app_lc rm -rf app/cache/prod
 	docker-compose exec app_lc php app/console assetic:dump -e prod
 	docker-compose exec app_lc chmod -R 777 /var/www/html/app/cache/
+
+app_lc_migrations:
+  sleep: 5
+	docker-compose exec mariadb mysql -uroot -p"11111" -e "create database lc;"
 	docker-compose exec app_lc php app/console doctrine:schema:create
 	docker-compose exec app_lc php app/console lc:database:populate batch/
 	docker-compose exec app_lc php app/console doctrine:schema:update --force
 
 app_mc_migrations:
-	# docker-compose exec postgres dropdb -Upostgres --if-exists mapas
-	# docker-compose exec postgres dropuser -Upostgres --if-exists mapas
-	# docker-compose exec postgres psql -Upostgres -d postgres -c "CREATE USER mapas WITH PASSWORD 'mapas';"
-
-	# docker-compose exec postgres createdb -Upostgres --owner mapas mapas
-	docker-compose exec postgres psql -Upostgres -d mapas -c 'CREATE EXTENSION postgis;'
-	docker-compose exec postgres psql -Upostgres -d mapas -c 'CREATE EXTENSION unaccent;'
-
-	# docker-compose exec postgres psql -d mapas -U mapas -f ../db/schema.sql
-	# docker-compose exec postgres psql -d mapas -U mapas -f ../db/initial-data.sql
 	docker-compose exec app_mc ./scripts/db-update.sh
 	docker-compose exec app_mc ./scripts/mc-db-updates.sh -d mc.redelivre
 	docker-compose exec app_mc ./scripts/generate-proxies.sh
+	# docker-compose exec postgres psql -d mapas -U mapas -f ../db/schema.sql
+	# docker-compose exec postgres psql -d mapas -U mapas -f ../db/initial-data.sql
 
 app_wp_migrations:
-	docker-compose exec mariadb mysql -uroot -p"11111" -e "create database wp;"
 	docker-compose exec app_wp wp --allow-root core install  --path=./web/wp --url=https://redelivre --title=teste-redelivre --admin_user=root --admin_password=123 --skip-email --admin_email=teste@teste.com
 	docker-compose exec app_wp wp --allow-root plugin activate wpro
+
 start:
 	docker-compose up -d app_lc web_lc
 	docker-compose up -d app_mc web_mc
@@ -54,7 +50,7 @@ upgrade:
 	docker-compose pull
 	docker-compose build --pull
 	# make composer update
-	make up
+	make start
 
 restart: stop up
 
@@ -99,8 +95,11 @@ urls:
 	@echo "Servidor S3:        http://s3.redelivre/"
 	@echo "PHPMyAdmin:         http://phpmyadmin.redelivre/"
 	@echo "Adminer:            http://adminer.redelivre/"
-	echo ""
+	@echo ""
 	@echo "-------------------------------------------------"
+
+clean:
+	@docker-compose down -v --remove-orphans
 
 
 status:
