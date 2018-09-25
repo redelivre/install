@@ -296,6 +296,21 @@ services:
             - mysql_data:/var/lib/mysql
         networks:
             rl:
+    
+    assistente:
+        image: assistente:master
+        ports:
+            - "3000:80"
+        build: ../Assistente
+        volumes:
+            - ./log/assistente:/var/log/assistente
+        labels:
+            traefik.frontend.rule: Host:assistente.redelivre"
+            traefik.port: '80'
+            traefik.enable: 'true'
+            traefik.alias: assistente
+        networks:
+            rl:
 
     # composer:
     #     image: composer
