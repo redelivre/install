@@ -301,7 +301,7 @@ services:
         image: assistente:master
         ports:
             - "3000:80"
-        build: ../../Assistente
+        build: ../Assistente
         volumes:
             - ./log/assistente:/var/log/assistente
         labels:
