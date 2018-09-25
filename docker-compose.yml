@@ -311,6 +311,21 @@ services:
             traefik.alias: assistente
         networks:
             rl:
+            
+    assistente_docs:
+        image: assistente:docs
+        ports:
+            - "3001:80"
+        build: ../Assistente
+        volumes:
+            - ./log/assistente_docs:/var/log/assistente_docs
+        labels:
+            traefik.frontend.rule: Host:docs.assistente.redelivre"
+            traefik.port: '80'
+            traefik.enable: 'true'
+            traefik.alias: assistente_docs
+        networks:
+            rl:
 
     # composer:
     #     image: composer
