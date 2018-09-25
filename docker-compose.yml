@@ -316,7 +316,9 @@ services:
         image: assistente:docs
         ports:
             - "3001:80"
-        build: ../Assistente
+        build: 
+            context: ../Assistente
+            dockerfile: Dockerfile.docs
         volumes:
             - ./log/assistente_docs:/var/log/assistente_docs
         labels:
